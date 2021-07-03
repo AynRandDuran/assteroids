@@ -14,6 +14,8 @@ Vector4 translate(Vector4 v1, Vector4 v2) {
 }
 
 void init_ship(){
+    ship_alive = true;
+    score = 0;
     nose.z = 270;
     port.z = 55;
     starboard.z = 125;
@@ -24,18 +26,15 @@ void init_ship(){
     center.x = scrW/2; center.y = scrH/2;
     ship_bearing = 0;
     
-    //allocate bullets;
     bullets = (Vector4*)malloc(sizeof(Vector4)*MAX_BULLETS);
     memset(bullets, 0, sizeof(Vector4) * MAX_BULLETS);
 
-    //allocate bullets;
     asteroids = (Vector4*)malloc(sizeof(Vector4)*MAX_ASTEROIDS);
     memset(asteroids, 0, sizeof(Vector4) * MAX_ASTEROIDS);
 }
 
 void die(){
     ship_alive = false;
-    init_ship();
 }
 
 void spin_ship(int az_delta){
@@ -99,14 +98,15 @@ void update_bullets(){
 }
 
 void spawn_astr() {
+    int heading = rand() % 360;
     for(int i = 0; i < MAX_ASTEROIDS; i++){
         // find available asteroid
         // no size means you're fuckin dead, gyro
         if(asteroids[i].w == 0) {
-            asteroids[i].x = 9;
-            asteroids[i].y = scrH/2;
-            asteroids[i].z = 0; //head to right I think 
-            asteroids[i].w = 64; //size 
+            asteroids[i].z = heading; 
+            asteroids[i].w = rand() % 34 + 30; 
+            asteroids[i].x = (heading > 90 && heading < 270) ? scrW : 0; 
+            asteroids[i].y = (heading > 180 && heading < 360) ? scrH : 0; 
             break;
         }
     }
@@ -143,6 +143,11 @@ void update_astrs() {
 
 int main(void) {
     srand(time(NULL));
+    astr_dirs = (Vector4**)malloc(sizeof(Vector4*) * 4);
+    astr_dirs[0] = &NE;
+    astr_dirs[1] = &NW;
+    astr_dirs[2] = &SE;
+    astr_dirs[3] = &SW;
 
     InitWindow(scrW, scrH, "Assteroids Raylib");
     SetTargetFPS(50);
@@ -167,6 +172,10 @@ int main(void) {
         if(IsKeyPressed('K')) {
             spawn_astr();
         }
+        if(IsKeyPressed('R') && !ship_alive) {
+            init_ship();
+            spin_ship(0);
+        }
 
         if(!onscreen(flatten(center)))
             die();
@@ -178,6 +187,10 @@ int main(void) {
                 flatten(translate(port, center)),
                 flatten(translate(starboard, center)),
                 RAYWHITE);
+            astr_spawner = rand() & 1000 + 1;
+            if(throttle && astr_spawner > 989) {
+                spawn_astr();
+            }
             update_bullets();
             update_astrs();
         } else {
@@ -193,6 +206,6 @@ int main(void) {
     CloseWindow();
     free(bullets);
     free(asteroids);
-
+    
     return 0;
 }

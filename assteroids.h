@@ -6,8 +6,8 @@
 #include <ctime>
 int scrW = 800;
 int scrH = 650;
-
 Color Space = {21, 0, 26};
+int astr_spawner = 0;
 Vector4 nose, port, starboard, center;
 float ship_bearing;
 bool throttle = false;
@@ -16,10 +16,17 @@ bool ship_alive = true;
 Vector4* bullets;
 const int MAX_BULLETS = 32;
 unsigned int score = 0;
-Rectangle screenspace = {-10, -10, scrW+10, scrH+10};
+Rectangle screenspace = {-200, -200, scrW+200, scrH+200};
 
 // x/y pos, z heading, w size/life
 Vector4* asteroids;
 const int MAX_ASTEROIDS = 16;
+
+Vector4 NE = {0, scrH, 0, 90};
+Vector4 NW = {scrW, scrH, 91, 180};
+Vector4 SW = {0, 0, 181, 275};
+Vector4 SE = {scrW, 0, 276, 359};
+
+Vector4** astr_dirs;
 #endif //__ass
 

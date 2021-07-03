@@ -22,11 +22,6 @@ Rectangle screenspace = {-200, -200, scrW+200, scrH+200};
 Vector4* asteroids;
 const int MAX_ASTEROIDS = 16;
 
-Vector4 NE = {0, scrH, 0, 90};
-Vector4 NW = {scrW, scrH, 91, 180};
-Vector4 SW = {0, 0, 181, 275};
-Vector4 SE = {scrW, 0, 276, 359};
-
 Vector4** astr_dirs;
 #endif //__ass
 

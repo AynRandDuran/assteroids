@@ -143,12 +143,6 @@ void update_astrs() {
 
 int main(void) {
     srand(time(NULL));
-    astr_dirs = (Vector4**)malloc(sizeof(Vector4*) * 4);
-    astr_dirs[0] = &NE;
-    astr_dirs[1] = &NW;
-    astr_dirs[2] = &SE;
-    astr_dirs[3] = &SW;
-
     InitWindow(scrW, scrH, "Assteroids Raylib");
     SetTargetFPS(50);
     init_ship();

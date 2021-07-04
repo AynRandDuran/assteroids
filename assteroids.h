@@ -22,6 +22,7 @@ Rectangle screenspace = {-200, -200, scrW+200, scrH+200};
 Vector4* asteroids;
 const int MAX_ASTEROIDS = 16;
 
-Vector4** astr_dirs;
+Vector4* dead_ship;
+const int SHIP_DEBRIS = 6;
 #endif //__ass
 

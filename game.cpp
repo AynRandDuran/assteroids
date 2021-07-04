@@ -15,6 +15,7 @@ Vector4 translate(Vector4 v1, Vector4 v2) {
 
 void init_ship(){
     ship_alive = true;
+    throttle = false;
     score = 0;
     nose.z = 270;
     port.z = 55;
@@ -26,15 +27,19 @@ void init_ship(){
     center.x = scrW/2; center.y = scrH/2;
     ship_bearing = 0;
     
-    bullets = (Vector4*)malloc(sizeof(Vector4)*MAX_BULLETS);
     memset(bullets, 0, sizeof(Vector4) * MAX_BULLETS);
-
-    asteroids = (Vector4*)malloc(sizeof(Vector4)*MAX_ASTEROIDS);
     memset(asteroids, 0, sizeof(Vector4) * MAX_ASTEROIDS);
+    
 }
 
 void die(){
     ship_alive = false;
+    for(int i = 0; i < SHIP_DEBRIS; i++) {
+        dead_ship[i].x = center.x; dead_ship[i].y = center.y;
+        dead_ship[i].z = (360/SHIP_DEBRIS) * (i + 1);
+        dead_ship[i].w = 8;
+    }
+    
 }
 
 void spin_ship(int az_delta){
@@ -112,6 +117,14 @@ void spawn_astr() {
     }
 }
 
+void explode_ship() {
+    for (int i = 0; i < SHIP_DEBRIS; i++) {
+        DrawCircleLines(dead_ship[i].x, dead_ship[i].y, dead_ship[i].w, RED);
+        dead_ship[i].x += cos(dead_ship[i].z * (PI/180)) *3;
+        dead_ship[i].y += sin(dead_ship[i].z * (PI/180)) *3;
+    }
+}
+
 bool ship_collision(Vector4* body) {
     return (
             CheckCollisionPointCircle(flatten(translate(nose, center)), flatten(*body), body->w * 0.9f) ||
@@ -133,7 +146,7 @@ void update_astrs() {
         if(!onscreen(flatten(*astr)))
             astr->w = 0;
 
-        if(ship_collision(astr)){
+        if(ship_collision(astr) && ship_alive){
             die();
         }
         
@@ -142,6 +155,10 @@ void update_astrs() {
 }
 
 int main(void) {
+    asteroids = (Vector4*)malloc(sizeof(Vector4)*MAX_ASTEROIDS);
+    bullets = (Vector4*)malloc(sizeof(Vector4)*MAX_BULLETS);
+    dead_ship = (Vector4*)malloc(sizeof(Vector4) * SHIP_DEBRIS);
+
     srand(time(NULL));
     InitWindow(scrW, scrH, "Assteroids Raylib");
     SetTargetFPS(50);
@@ -151,27 +168,24 @@ int main(void) {
         BeginDrawing();
         ClearBackground(Space);
 
-        if(IsKeyDown('J')) {
+        if(IsKeyDown('J') && ship_alive) {
             spin_ship(-4);
         }
-        if(IsKeyDown('L')) {
+        if(IsKeyDown('L') && ship_alive) {
             spin_ship(4);
         }
-        if(IsKeyPressed('I')) {
+        if(IsKeyPressed('I') && ship_alive) {
             throttle = true;
         }
-        if(IsKeyPressed('S')) {
+        if(IsKeyPressed('S') && ship_alive) {
             shoot();
-        }
-        if(IsKeyPressed('K')) {
-            spawn_astr();
         }
         if(IsKeyPressed('R') && !ship_alive) {
             init_ship();
             spin_ship(0);
         }
 
-        if(!onscreen(flatten(center)))
+        if(!onscreen(flatten(center)) && ship_alive)
             die();
 
         if(ship_alive) {
@@ -182,16 +196,16 @@ int main(void) {
                 flatten(translate(starboard, center)),
                 RAYWHITE);
             astr_spawner = rand() & 1000 + 1;
-            if(throttle && astr_spawner > 989) {
-                spawn_astr();
-            }
-            update_bullets();
-            update_astrs();
         } else {
             DrawText("YOU DIED", (scrW/2)-(MeasureText("YOU DIED", 64)/2), (scrH/2)-64, 64, RED);
-            memset(bullets, 0, sizeof(Vector4) * MAX_BULLETS);
-            memset(asteroids, 0, sizeof(Vector4) * MAX_ASTEROIDS);
+            explode_ship();
         }
+        if(throttle && astr_spawner > 989) {
+            spawn_astr();
+        }
+        update_bullets();
+        update_astrs();
+        
         DrawText(TextFormat("%d", score), 4, scrH-34, 32, WHITE);
         DrawFPS(0, 0);
         EndDrawing();
@@ -200,6 +214,7 @@ int main(void) {
     CloseWindow();
     free(bullets);
     free(asteroids);
+    free(dead_ship);
     
     return 0;
 }

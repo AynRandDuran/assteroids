@@ -13,6 +13,11 @@ Vector4 translate(Vector4 v1, Vector4 v2) {
     return translation;
 }
 
+bool onscreen(Vector2 v) {
+    // Ensure v is still onscreen
+    return CheckCollisionPointRec(v, screenspace); 
+}
+
 void init_ship(){
     ship_alive = true;
     throttle = false;
@@ -29,12 +34,16 @@ void init_ship(){
     
     memset(bullets, 0, sizeof(Vector4) * MAX_BULLETS);
     memset(asteroids, 0, sizeof(Vector4) * MAX_ASTEROIDS);
-    
+    memset(dead_ship, 0, sizeof(Vector4) * SHIP_DEBRIS);    
+
+    memset(dead_astr, 0, sizeof(Vector4) * SHIP_DEBRIS * MAX_ASTEROIDS);
 }
 
 void die(){
     ship_alive = false;
     for(int i = 0; i < SHIP_DEBRIS; i++) {
+        if (!onscreen(flatten(dead_ship[i])))
+            continue;
         dead_ship[i].x = center.x; dead_ship[i].y = center.y;
         dead_ship[i].z = (360/SHIP_DEBRIS) * (i + 1);
         dead_ship[i].w = 8;
@@ -53,11 +62,6 @@ void spin_ship(int az_delta){
     starboard.x = cos(starboard.z * (PI/180)) * 15;
     starboard.y = sin(starboard.z * (PI/180)) * 15;
 
-}
-
-bool onscreen(Vector2 v) {
-    // Ensure v is still onscreen
-    return CheckCollisionPointRec(v, screenspace); 
 }
 
 void update_v4(Vector4* origin, Vector4* v_body, int speed){
@@ -95,6 +99,7 @@ void update_bullets(){
                     asteroids[a].w = 0;
                     bullets[i].w = 0;
                     score++;
+                    explode_asteroid(&asteroids[a]);
                     break;
                 }
             } 
@@ -143,8 +148,9 @@ void update_astrs() {
             astr->y += sin(astr->z * (PI/180)) *3;
             DrawPolyLines(flatten(*astr), 7, astr->w, 0, RAYWHITE);
         }
-        if(!onscreen(flatten(*astr)))
+        if(!onscreen(flatten(*astr))) {
             astr->w = 0;
+        }
 
         if(ship_collision(astr) && ship_alive){
             die();
@@ -198,6 +204,7 @@ int main(void) {
             astr_spawner = rand() & 1000 + 1;
         } else {
             DrawText("YOU DIED", (scrW/2)-(MeasureText("YOU DIED", 64)/2), (scrH/2)-64, 64, RED);
+            DrawText("FUCK YOU", (scrW/2)-(MeasureText("FUCK YOU", 16)/2), (scrH/2)-8, 16, RED);
             explode_ship();
         }
         if(throttle && astr_spawner > 989) {
@@ -205,6 +212,7 @@ int main(void) {
         }
         update_bullets();
         update_astrs();
+        update_explosions();
         
         DrawText(TextFormat("%d", score), 4, scrH-34, 32, WHITE);
         DrawFPS(0, 0);
@@ -217,4 +225,37 @@ int main(void) {
     free(dead_ship);
     
     return 0;
+}
+
+void explode_asteroid(Vector4* astr) {
+    for(int i = 0; i < MAX_ASTEROIDS; i++) {
+        if(dead_astr[i][0].w == 0) {
+            for (int a = 0; a < SHIP_DEBRIS; a++) {
+                dead_astr[i][a].x = astr->x;
+                dead_astr[i][a].y = astr->y;
+                dead_astr[i][a].z = (360/SHIP_DEBRIS) * a;
+                dead_astr[i][a].w = 1;
+            }
+            break;
+        }
+    }
+}
+
+void update_explosions() {
+    int offscreen_bubbles = 0;
+    for(int i = 0; i < MAX_ASTEROIDS; i++) {
+        if(dead_astr[i][0].w == 1) {
+            for (int a = 0; a < SHIP_DEBRIS; a++) {
+                dead_astr[i][a].x += cos(dead_astr[i][a].z * (PI/180)) * 5;
+                dead_astr[i][a].y += sin(dead_astr[i][a].z * (PI/180)) * 5;
+                DrawCircleLines(dead_astr[i][a].x, dead_astr[i][a].y, 8, RAYWHITE);
+                if(!onscreen(flatten(dead_astr[i][a])))
+                    offscreen_bubbles++;
+                if(offscreen_bubbles == SHIP_DEBRIS-1)
+                    memset(&dead_astr[i], 0, sizeof(Vector4) * SHIP_DEBRIS);
+            }
+        }
+        offscreen_bubbles=0;
+    }
+    
 }

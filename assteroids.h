@@ -24,5 +24,9 @@ const int MAX_ASTEROIDS = 16;
 
 Vector4* dead_ship;
 const int SHIP_DEBRIS = 6;
+
+Vector4 dead_astr[MAX_ASTEROIDS][6];
+void explode_asteroid(Vector4* astr);
+void update_explosions();
 #endif //__ass
 

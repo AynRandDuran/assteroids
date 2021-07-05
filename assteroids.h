@@ -17,6 +17,7 @@ Vector4* bullets;
 const int MAX_BULLETS = 32;
 unsigned int score = 0;
 Rectangle screenspace = {-200, -200, scrW+200, scrH+200};
+time_t last_fire = 0;
 
 // x/y pos, z heading, w size/life
 Vector4* asteroids;

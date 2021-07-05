@@ -46,7 +46,7 @@ void die(){
             continue;
         dead_ship[i].x = center.x; dead_ship[i].y = center.y;
         dead_ship[i].z = (360/SHIP_DEBRIS) * (i + 1);
-        dead_ship[i].w = 4;
+        dead_ship[i].w = 6;
     }
     
 }
@@ -73,11 +73,12 @@ void update_v4(Vector4* origin, Vector4* v_body, int speed){
 void shoot(){
     for(int i = 0; i < MAX_BULLETS; i++){
         // find available bullet
-        if(bullets[i].w == 0) {
+        if(bullets[i].w == 0 && time(NULL) > last_fire) {
             bullets[i].x = center.x;
             bullets[i].y = center.y;
             bullets[i].z = nose.z;
             bullets[i].w = 1; 
+            time(&last_fire);
             break;
         }
     }

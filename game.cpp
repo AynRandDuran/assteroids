@@ -46,7 +46,7 @@ void die(){
             continue;
         dead_ship[i].x = center.x; dead_ship[i].y = center.y;
         dead_ship[i].z = (360/SHIP_DEBRIS) * (i + 1);
-        dead_ship[i].w = 8;
+        dead_ship[i].w = 4;
     }
     
 }
@@ -233,7 +233,7 @@ void explode_asteroid(Vector4* astr) {
             for (int a = 0; a < SHIP_DEBRIS; a++) {
                 dead_astr[i][a].x = astr->x;
                 dead_astr[i][a].y = astr->y;
-                dead_astr[i][a].z = (360/SHIP_DEBRIS) * a;
+                dead_astr[i][a].z = ((360/SHIP_DEBRIS) * a) + (360/(SHIP_DEBRIS*3));
                 dead_astr[i][a].w = 1;
             }
             break;

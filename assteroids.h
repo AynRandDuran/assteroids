@@ -29,5 +29,31 @@ const int SHIP_DEBRIS = 6;
 Vector4 dead_astr[MAX_ASTEROIDS][6];
 void explode_asteroid(Vector4* astr);
 void update_explosions();
+
+// bitfield
+const int SHOTGUN = 1;
+const int BOMB = 2;
+const int GOD = 4;
+char active_powerups = 0;
+int shotgun_blasts = 0;
+int bullet_offsets[5] = {0, 6, 12, -6, -12};
+
+Vector4 shotgun_box = {center.x, center.y, 45, 0};
+Vector2 master_s_top_box[4] = {{-10, -2}, {-10, -10}, {10, -10}, {10, -2}};
+Vector2 master_s_bot_box[4] = {{-10, 2}, {-10, 10}, {10, 10}, {10, 2}};
+Vector2 s_top_box[4];
+Vector2 s_bot_box[4];
+void init_shotgun();
+void draw_shotgun();
+int enable_shotgun();
+int disable_shotgun();
+
+Vector4 shield_pickup = {0, 0, 0, 0};
+int shield_hp = 9;
+time_t shield_spawn_time = 0;
+void init_shield();
+void draw_shield_pickup(); //explicitly, the powerup
+void enable_shield();
+void disable_shield();
 #endif //__ass
 

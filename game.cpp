@@ -192,13 +192,13 @@ int main(void) {
         BeginDrawing();
         ClearBackground(Space);
 
-        if(IsKeyDown('J') && ship_alive) {
+        if((IsKeyDown('J') || IsKeyDown(KEY_LEFT)) && ship_alive) {
             spin_ship(-4);
         }
-        if(IsKeyDown('L') && ship_alive) {
+        if((IsKeyDown('L') || IsKeyDown(KEY_RIGHT)) && ship_alive) {
             spin_ship(4);
         }
-        if(IsKeyPressed('I') && ship_alive) {
+        if((IsKeyPressed('I') || IsKeyPressed(KEY_UP)) && ship_alive) {
             throttle = true;
         }
         if(IsKeyPressed('S') && ship_alive) {
@@ -285,13 +285,11 @@ void enable_shield() {
     shield_hp = 9;
     active_powerups |= GOD;
     time(&shield_spawn_time);
-    printf("powerups: %d\n", active_powerups);
 }
 
 void disable_shield() {
     active_powerups ^= GOD;
     shield_hp = 9;
-    printf("powerups: %d\n", active_powerups);
 }
 
 void explode_asteroid(Vector4* astr) {

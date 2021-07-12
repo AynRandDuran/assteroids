@@ -230,6 +230,10 @@ int main(void) {
                 if(shield_hp <= 0)
                     disable_shield();
             }
+            if(!throttle) {
+                DrawText("KILL TO LIVE", (scrW/2)-(MeasureText("KILL TO LIVE", 64)/2), (scrH/2)-128, 64, RED);
+                DrawText("LAUNCH TO START", (scrW/2)-(MeasureText("LAUNCH TO START", 32)/2), (scrH/2)+64, 32, RED);
+            }
         } else if(!(active_powerups & GOD)) {
             DrawText("YOU DIED", (scrW/2)-(MeasureText("YOU DIED", 64)/2), (scrH/2)-64, 64, RED);
             DrawText("FUCK YOU", (scrW/2)-(MeasureText("FUCK YOU", 16)/2), (scrH/2)-8, 16, RED);
@@ -299,7 +303,7 @@ void explode_asteroid(Vector4* astr) {
                 dead_astr[i][a].z = ((360/SHIP_DEBRIS) * a) + (360/(SHIP_DEBRIS*3));
                 dead_astr[i][a].w = 1;
             }
-            if(shield_pickup.w == 0 && rand() % 20 < 3)
+            if(shield_pickup.w == 0 && rand() % 30 < 2)
                 init_shield(astr);
             break;
         }

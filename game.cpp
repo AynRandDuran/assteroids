@@ -88,6 +88,7 @@ void shoot(){
                 bullets[i].y = center.y;
                 bullets[i].z = nose.z + bullet_offsets[s];
                 bullets[i].w = 1; 
+                PlaySound(sfx_shoot);
                 break;
             }
         }
@@ -116,6 +117,10 @@ void update_bullets(){
                     bullets[i].w = 0;
                     score++;
                     explode_asteroid(&asteroids[a]);
+                    if((score%5 == 0) && score > 0 && bomb_proj.w < 16) {
+                        //Bomb unlocked
+                        active_powerups |= BOMB;
+                    }
                     break;
                 }
             } 
@@ -185,6 +190,11 @@ void update_astrs() {
 }
 
 int main(void) {
+    InitAudioDevice();
+    if(IsAudioDeviceReady()) {
+        sfx_shoot = LoadSound(SFX_SHOOT_FILE);
+        sfx_music = LoadSound(SFX_BGM_FILE);
+    }
     asteroids = (Vector4*)malloc(sizeof(Vector4)*MAX_ASTEROIDS);
     bullets = (Vector4*)malloc(sizeof(Vector4)*MAX_BULLETS);
     dead_ship = (Vector4*)malloc(sizeof(Vector4) * SHIP_DEBRIS);
@@ -206,6 +216,7 @@ int main(void) {
         }
         if((IsKeyPressed('I') || IsKeyPressed(KEY_UP)) && ship_alive) {
             throttle = true;
+            SetSoundVolume(sfx_music, 0.5f);
         }
         if(IsKeyPressed('S') && ship_alive) {
             shoot();
@@ -213,6 +224,7 @@ int main(void) {
         if(IsKeyPressed('R') && !ship_alive) {
             init_ship();
             spin_ship(0);
+            StopSound(sfx_music);
         }
         if(IsKeyPressed('A') && (active_powerups & BOMB)) {
             active_powerups ^= BOMB;
@@ -246,16 +258,13 @@ int main(void) {
                 DrawText("KILL TO LIVE", (scrW/2)-(MeasureText("KILL TO LIVE", 64)/2), (scrH/2)-128, 64, RED);
                 DrawText("LAUNCH TO START", (scrW/2)-(MeasureText("LAUNCH TO START", 32)/2), (scrH/2)+64, 32, RED);
             }
-            if(score%5 == 0 && score > 0 && bomb_proj.w < 16) {
-                //Bomb unlocked
-                active_powerups ^= BOMB;
-            }
             if(active_powerups & BOMB) 
                 DrawCircleSectorLines(flatten(translate(nose, center)), 4.0f, 0, 360, 360, RED);
         } else if(!(active_powerups & GOD)) {
             DrawText("YOU DIED", (scrW/2)-(MeasureText("YOU DIED", 64)/2), (scrH/2)-64, 64, RED);
             DrawText("FUCK YOU", (scrW/2)-(MeasureText("FUCK YOU", 16)/2), (scrH/2)-8, 16, RED);
             explode_ship();
+            SetSoundVolume(sfx_music, .1);
         }
         if(throttle && astr_spawner > 989) {
             spawn_astr();
@@ -273,8 +282,15 @@ int main(void) {
         DrawText(TextFormat("%d", score), 4, scrH-34, 32, WHITE);
         DrawFPS(0, 0);
         EndDrawing();
+        if(throttle && !IsSoundPlaying(sfx_music)) {
+            PlaySound(sfx_music);
+        }
 
     }
+    UnloadSound(sfx_shoot);
+    UnloadSound(sfx_music);
+
+    CloseAudioDevice();
     CloseWindow();
     free(bullets);
     free(asteroids);
@@ -403,6 +419,8 @@ void update_bomb() {
     }
     if(bomb_proj.w < 128) {
         DrawPolyLines(flatten(bomb_proj), 8, bomb_proj.w, whrot, DARKPURPLE);
+        DrawPolyLines(flatten(bomb_proj), 8, bomb_proj.w * .8, -whrot, DARKPURPLE);
+        DrawPolyLines(flatten(bomb_proj), 8, bomb_proj.w * .5, whrot, DARKPURPLE);
         whrot++;
     } else if (bomb_proj.w >= 128 || !onscreen(flatten(bomb_proj))) {
         memset(&bomb_proj, 0, sizeof(Vector4));

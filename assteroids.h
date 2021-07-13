@@ -5,6 +5,12 @@
 #include <cstdio>
 #include <ctime>
 
+#define SFX_SHOOT_FILE "./shoot.wav"
+#define SFX_BGM_FILE "./music.wav"
+
+Sound sfx_music;
+Sound sfx_shoot;
+
 int scrW = 800;
 int scrH = 650;
 Color Space = {21, 0, 26};

@@ -167,6 +167,12 @@ void update_astrs() {
         if(!onscreen(flatten(*astr))) {
             astr->w = 0;
         }
+        if(CheckCollisionCircles(flatten(*astr), astr->w, flatten(bomb_proj), bomb_proj.w) && bomb_proj.w >= 16) {
+            astr->w = 0;
+            bomb_proj.z = -1; //stop moving the bomb and explode
+            bomb_proj.w +=16;
+            explode_asteroid(astr);
+        }
 
         if(ship_collision(astr) && ship_alive){
             if((active_powerups & GOD)) {
@@ -208,7 +214,7 @@ int main(void) {
             init_ship();
             spin_ship(0);
         }
-        if(IsKeyPressed('A') && active_powerups & BOMB) {
+        if(IsKeyPressed('A') && (active_powerups & BOMB)) {
             active_powerups ^= BOMB;
             launch_bomb();
         }
@@ -240,9 +246,9 @@ int main(void) {
                 DrawText("KILL TO LIVE", (scrW/2)-(MeasureText("KILL TO LIVE", 64)/2), (scrH/2)-128, 64, RED);
                 DrawText("LAUNCH TO START", (scrW/2)-(MeasureText("LAUNCH TO START", 32)/2), (scrH/2)+64, 32, RED);
             }
-            if(score%5 == 0 && score > 0) {
+            if(score%5 == 0 && score > 0 && bomb_proj.w < 16) {
                 //Bomb unlocked
-                active_powerups |= BOMB;
+                active_powerups ^= BOMB;
             }
             if(active_powerups & BOMB) 
                 DrawCircleSectorLines(flatten(translate(nose, center)), 4.0f, 0, 360, 360, RED);
@@ -346,8 +352,7 @@ void init_shotgun() {
     shotgun_box.x = (heading > 90 && heading < 270) ? scrW : 0; 
     shotgun_box.y = (heading > 180 && heading < 360) ? scrH : 0; 
 
-    memcpy(s_top_box, master_s_top_box, sizeof(Vector2)*4);
-    memcpy(s_bot_box, master_s_bot_box, sizeof(Vector2)*4);
+    memcpy(s_top_box, master_s_top_box, sizeof(Vector2)*4); memcpy(s_bot_box, master_s_bot_box, sizeof(Vector2)*4);
     for(int i = 0; i < 4; i++) {
         s_top_box[i].x += shotgun_box.x;
         s_top_box[i].y += shotgun_box.y;
@@ -392,8 +397,14 @@ void launch_bomb() {
 }
 
 void update_bomb() {
-    bomb_proj.x += cos(bomb_proj.z * (PI/180)) *6;
-    bomb_proj.y += sin(bomb_proj.z * (PI/180)) *6;
-    DrawPolyLines(flatten(bomb_proj), 16, bomb_proj.w, 0, RED);
-
+    if(bomb_proj.z != -1) {
+        bomb_proj.x += cos(bomb_proj.z * (PI/180)) *6;
+        bomb_proj.y += sin(bomb_proj.z * (PI/180)) *6;
+    }
+    if(bomb_proj.w < 128) {
+        DrawPolyLines(flatten(bomb_proj), 8, bomb_proj.w, whrot, DARKPURPLE);
+        whrot++;
+    } else if (bomb_proj.w >= 128 || !onscreen(flatten(bomb_proj))) {
+        memset(&bomb_proj, 0, sizeof(Vector4));
+    }
 }

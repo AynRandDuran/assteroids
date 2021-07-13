@@ -4,6 +4,7 @@
 #include <raylib.h>
 #include <cstdio>
 #include <ctime>
+
 int scrW = 800;
 int scrH = 650;
 Color Space = {21, 0, 26};
@@ -57,6 +58,7 @@ void enable_shield();
 void disable_shield();
 
 Vector4 bomb_proj;
+int whrot = 0;
 void launch_bomb();
 void update_bomb();
 #endif //__ass

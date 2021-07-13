@@ -9,8 +9,6 @@ Vector2 flatten(Vector4 pV){
     return stan;
 }
 
-
-
 Vector4 translate(Vector4 v1, Vector4 v2) {
     Vector4 translation = {v1.x+v2.x, v1.y+v2.y, v1.y+v2.y, v1.z+v2.z};
     return translation;
@@ -28,6 +26,7 @@ void init_ship(){
     nose.z = 270;
     port.z = 55;
     starboard.z = 125;
+    active_powerups = 0;
     
     nose.x = 0; nose.y = -15;
     port.x = -10; port.y = 15;
@@ -42,6 +41,7 @@ void init_ship(){
     memset(&shotgun_box, 0, sizeof(Vector4));
     memset(dead_astr, 0, sizeof(Vector4) * SHIP_DEBRIS * MAX_ASTEROIDS);
     memset(&shield_pickup, 0, sizeof(Vector4));
+    memset(&bomb_proj, 0, sizeof(Vector4));
 }
 
 void die(){
@@ -208,6 +208,10 @@ int main(void) {
             init_ship();
             spin_ship(0);
         }
+        if(IsKeyPressed('A') && active_powerups & BOMB) {
+            active_powerups ^= BOMB;
+            launch_bomb();
+        }
 
         if(!onscreen(flatten(center)) && ship_alive)
             die();
@@ -230,10 +234,18 @@ int main(void) {
                 if(shield_hp <= 0)
                     disable_shield();
             }
+            if(bomb_proj.w != 0)
+                update_bomb();
             if(!throttle) {
                 DrawText("KILL TO LIVE", (scrW/2)-(MeasureText("KILL TO LIVE", 64)/2), (scrH/2)-128, 64, RED);
                 DrawText("LAUNCH TO START", (scrW/2)-(MeasureText("LAUNCH TO START", 32)/2), (scrH/2)+64, 32, RED);
             }
+            if(score%5 == 0 && score > 0) {
+                //Bomb unlocked
+                active_powerups |= BOMB;
+            }
+            if(active_powerups & BOMB) 
+                DrawCircleSectorLines(flatten(translate(nose, center)), 4.0f, 0, 360, 360, RED);
         } else if(!(active_powerups & GOD)) {
             DrawText("YOU DIED", (scrW/2)-(MeasureText("YOU DIED", 64)/2), (scrH/2)-64, 64, RED);
             DrawText("FUCK YOU", (scrW/2)-(MeasureText("FUCK YOU", 16)/2), (scrH/2)-8, 16, RED);
@@ -370,4 +382,18 @@ void draw_shotgun() {
     DrawLineStrip(s_top_box, 4, WHITE);
     DrawLineStrip(s_bot_box, 4, WHITE);
     DrawText("S", shotgun_box.x-6, shotgun_box.y-8, 20, GOLD);
+}
+
+void launch_bomb() {
+    bomb_proj.x = flatten(translate(nose, center)).x;
+    bomb_proj.y = flatten(translate(nose, center)).y;
+    bomb_proj.z = nose.z; 
+    bomb_proj.w = 16;
+}
+
+void update_bomb() {
+    bomb_proj.x += cos(bomb_proj.z * (PI/180)) *6;
+    bomb_proj.y += sin(bomb_proj.z * (PI/180)) *6;
+    DrawPolyLines(flatten(bomb_proj), 16, bomb_proj.w, 0, RED);
+
 }

@@ -55,5 +55,9 @@ void init_shield();
 void draw_shield_pickup(); //explicitly, the powerup
 void enable_shield();
 void disable_shield();
+
+Vector4 bomb_proj;
+void launch_bomb();
+void update_bomb();
 #endif //__ass
 

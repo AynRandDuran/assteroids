@@ -117,7 +117,7 @@ void update_bullets(){
                     bullets[i].w = 0;
                     score++;
                     explode_asteroid(&asteroids[a]);
-                    if((score%5 == 0) && score > 0 && bomb_proj.w < 16) {
+                    if((score%15 == 0) && score > 0 && bomb_proj.w < 16) {
                         //Bomb unlocked
                         active_powerups |= BOMB;
                     }

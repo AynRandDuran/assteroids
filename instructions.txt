@@ -1,0 +1,10 @@
+
+Arrow keys/JIKL to move
+move forward to start
+R to restart after death
+S to shoot
+A to launch a wormhole when armed
+Shields last 9 seconds
+Shotgun pickup is good for 6 shots
+
+Ensure included WAV files are in the same directory as your executable

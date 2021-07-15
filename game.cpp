@@ -4,6 +4,8 @@
 #include "powerups.hpp"
 #include "vectormath.hpp"
 
+void show_instructions();
+
 Vector2 flatten(Vector4 pV){
     Vector2 stan = {pV.x, pV.y};
     return stan;
@@ -198,6 +200,7 @@ int main(void) {
     asteroids = (Vector4*)malloc(sizeof(Vector4)*MAX_ASTEROIDS);
     bullets = (Vector4*)malloc(sizeof(Vector4)*MAX_BULLETS);
     dead_ship = (Vector4*)malloc(sizeof(Vector4) * SHIP_DEBRIS);
+    paused = true;
 
     srand(time(NULL));
     InitWindow(scrW, scrH, "Assteroids Raylib");
@@ -207,6 +210,16 @@ int main(void) {
     while(!WindowShouldClose()){
         BeginDrawing();
         ClearBackground(Space);
+
+        if(IsKeyPressed('H')) {
+            paused = !paused;
+        }
+        if(paused) {
+            show_instructions();
+            PauseSound(sfx_music);
+            EndDrawing();
+            continue;
+        }
 
         if((IsKeyDown('J') || IsKeyDown(KEY_LEFT)) && ship_alive) {
             spin_ship(-4);
@@ -425,4 +438,15 @@ void update_bomb() {
     } else if (bomb_proj.w >= 128 || !onscreen(flatten(bomb_proj))) {
         memset(&bomb_proj, 0, sizeof(Vector4));
     }
+}
+
+void show_instructions() {
+    DrawText("I/UP : START", (scrW/2)-(MeasureText("I/UP : START", 32)/2), (scrH/2)-256, 32, RED);
+    DrawText("J/LEFT : TURN PORT", (scrW/2)-(MeasureText("J/LEFT : TURN PORT", 32)/2), (scrH/2)-206, 32, RED);
+    DrawText("L/RIGHT : TURN STARBOARD", (scrW/2)-(MeasureText("L/RIGHT : TURN STARBOARD", 32)/2), (scrH/2)-156, 32, RED);
+    DrawText("S : SHOOT", (scrW/2)-(MeasureText("S : SHOOT", 32)/2), (scrH/2)-106, 32, RED);
+    DrawText("R : RESPAWN", (scrW/2)-(MeasureText("R : RESPAWN", 32)/2), (scrH/2)-56, 32, RED);
+    DrawText("A : WORMHOLE", (scrW/2)-(MeasureText("A : WORMHOLE", 32)/2), (scrH/2)-6, 32, RED);
+    DrawText("H : UN/PAUSE", (scrW/2)-(MeasureText("H : UN/PAUSE", 32)/2), (scrH/2)+50, 32, RED);
+    
 }

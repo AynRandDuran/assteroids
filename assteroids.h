@@ -10,7 +10,7 @@
 
 Sound sfx_music;
 Sound sfx_shoot;
-
+bool paused = false;
 int scrW = 800;
 int scrH = 650;
 Color Space = {21, 0, 26};

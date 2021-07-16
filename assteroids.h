@@ -67,5 +67,12 @@ Vector4 bomb_proj;
 int whrot = 0;
 void launch_bomb();
 void update_bomb();
+
+// Death stats
+int bomb_kills     = 0;
+int shotgun_kills  = 0;
+int deaths_avoided = 0;
+int time_alive     = 0;
+
 #endif //__ass
 

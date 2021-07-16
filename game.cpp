@@ -4,6 +4,7 @@
 #include "powerups.hpp"
 #include "vectormath.hpp"
 
+void show_death_stats();
 void show_instructions();
 
 Vector2 flatten(Vector4 pV){
@@ -44,6 +45,8 @@ void init_ship(){
     memset(dead_astr, 0, sizeof(Vector4) * SHIP_DEBRIS * MAX_ASTEROIDS);
     memset(&shield_pickup, 0, sizeof(Vector4));
     memset(&bomb_proj, 0, sizeof(Vector4));
+
+    bomb_kills = shotgun_kills = deaths_avoided = time_alive = 0;
 }
 
 void die(){
@@ -120,8 +123,10 @@ void update_bullets(){
                     score++;
                     explode_asteroid(&asteroids[a]);
                     if((score%15 == 0) && score > 0 && bomb_proj.w < 16) {
-                        //Bomb unlocked
                         active_powerups |= BOMB;
+                    }
+                    if(active_powerups & SHOTGUN) {
+                        shotgun_kills++;
                     }
                     break;
                 }
@@ -179,10 +184,13 @@ void update_astrs() {
             bomb_proj.z = -1; //stop moving the bomb and explode
             bomb_proj.w +=16;
             explode_asteroid(astr);
+            score++;
+            bomb_kills++;
         }
 
         if(ship_collision(astr) && ship_alive){
             if((active_powerups & GOD)) {
+                deaths_avoided++;
                 continue;
             }
             die();
@@ -247,6 +255,7 @@ int main(void) {
             die();
 
         if(ship_alive) {
+            time_alive++;
             update_v4(&nose, &center, 3);
             DrawTriangleLines(
                 flatten(translate(nose, center)),
@@ -277,6 +286,7 @@ int main(void) {
             DrawText("FUCK YOU", (scrW/2)-(MeasureText("FUCK YOU", 16)/2), (scrH/2)-8, 16, RED);
             explode_ship();
             SetSoundVolume(sfx_music, .1);
+            show_death_stats();
         }
         if(throttle && astr_spawner > 989) {
             spawn_astr();
@@ -449,4 +459,14 @@ void show_instructions() {
     DrawText("H : UN/PAUSE", scrW/4, (scrH/2)+50, 32, RED);
     
     DrawText("Thanks raysan for Raylib", scrW/4, (scrH)-34, 16, WHITE);
+}
+
+void show_death_stats() {
+    DrawText(TextFormat("KILLS : %d", score), scrW/4, (scrH/2)+64, 24, RED);
+    DrawText(TextFormat("TIME ALIVE : %d SECONDS", time_alive/60), scrW/4, (scrH/2)+ 96, 24, RED);
+    DrawText(TextFormat("SHOTGUN KILLS : %d", shotgun_kills), scrW/4, (scrH/2)+128, 24, RED);
+    DrawText(TextFormat("WORMHOLE KILLS : %d", bomb_kills), scrW/4, (scrH/2)+160, 24, RED);
+    DrawText(TextFormat("DEATHS NOT DIED : %d", deaths_avoided), scrW/4, (scrH/2)+192, 24, RED);
+    DrawText(TextFormat("SUCKS : FUCKED"), scrW/4, (scrH/2)+224, 24, RED);
+    DrawText("'R' TO LIVE AND KILL AGAIN", scrW/4, (scrH/2)+266, 32, RED);
 }

@@ -45,6 +45,7 @@ void init_ship(){
     memset(dead_astr, 0, sizeof(Vector4) * SHIP_DEBRIS * MAX_ASTEROIDS);
     memset(&shield_pickup, 0, sizeof(Vector4));
     memset(&bomb_proj, 0, sizeof(Vector4));
+    bomb_proj.w = -1;
 
     bomb_kills = shotgun_kills = deaths_avoided = time_alive = 0;
 }
@@ -122,7 +123,7 @@ void update_bullets(){
                     bullets[i].w = 0;
                     score++;
                     explode_asteroid(&asteroids[a]);
-                    if((score%15 == 0) && score > 0 && bomb_proj.w < 16) {
+                    if((score%1 == 0) && score > 0 && bomb_proj.w == -1) {
                         active_powerups |= BOMB;
                     }
                     if(active_powerups & SHOTGUN) {
@@ -179,7 +180,7 @@ void update_astrs() {
         if(!onscreen(flatten(*astr))) {
             astr->w = 0;
         }
-        if(CheckCollisionCircles(flatten(*astr), astr->w, flatten(bomb_proj), bomb_proj.w) && bomb_proj.w >= 16) {
+        if(CheckCollisionCircles(flatten(*astr), astr->w, flatten(bomb_proj), bomb_proj.w) && bomb_proj.w >= 16 && astr->w != 0 && ship_alive) {
             astr->w = 0;
             bomb_proj.z = -1; //stop moving the bomb and explode
             bomb_proj.w +=16;
@@ -273,13 +274,13 @@ int main(void) {
                 if(shield_hp <= 0)
                     disable_shield();
             }
-            if(bomb_proj.w != 0)
+            if(bomb_proj.w >= 0)
                 update_bomb();
             if(!throttle) {
                 DrawText("KILL TO LIVE", (scrW/2)-(MeasureText("KILL TO LIVE", 64)/2), (scrH/2)-128, 64, RED);
                 DrawText("LAUNCH TO START", (scrW/2)-(MeasureText("LAUNCH TO START", 32)/2), (scrH/2)+64, 32, RED);
             }
-            if(active_powerups & BOMB) 
+            if(active_powerups & BOMB && bomb_proj.w == -1) 
                 DrawCircleSectorLines(flatten(translate(nose, center)), 4.0f, 0, 360, 360, RED);
         } else if(!(active_powerups & GOD)) {
             DrawText("YOU DIED", (scrW/2)-(MeasureText("YOU DIED", 64)/2), (scrH/2)-64, 64, RED);
@@ -294,7 +295,7 @@ int main(void) {
         update_bullets();
         update_astrs();
         update_explosions();
-        if(throttle && shotgun_box.w == 0 && (rand() % 10000) < 8 && !active_powerups & SHOTGUN)
+        if(ship_alive && throttle && shotgun_box.w == 0 && (rand() % 10000) < 8 && !active_powerups & SHOTGUN)
             init_shotgun(); //a little treat
         if(shotgun_box.w == 1)
             draw_shotgun();
@@ -444,8 +445,14 @@ void update_bomb() {
         DrawPolyLines(flatten(bomb_proj), 8, bomb_proj.w * .8, -whrot, DARKPURPLE);
         DrawPolyLines(flatten(bomb_proj), 8, bomb_proj.w * .5, whrot, DARKPURPLE);
         whrot++;
-    } else if (bomb_proj.w >= 128 || !onscreen(flatten(bomb_proj))) {
+    } else if (bomb_proj.w >= 128 || (!onscreen(flatten(bomb_proj)) && bomb_proj.w != -1)) {
+        active_powerups ^= BOMB;
         memset(&bomb_proj, 0, sizeof(Vector4));
+        bomb_proj.w = -1;
+    }
+    if (!onscreen(flatten(bomb_proj))) {
+        printf("bomb off\n");
+        bomb_proj.w = -1;
     }
 }
 
@@ -463,10 +470,10 @@ void show_instructions() {
 
 void show_death_stats() {
     DrawText(TextFormat("KILLS : %d", score), scrW/4, (scrH/2)+64, 24, RED);
-    DrawText(TextFormat("TIME ALIVE : %d SECONDS", time_alive/60), scrW/4, (scrH/2)+ 96, 24, RED);
     DrawText(TextFormat("SHOTGUN KILLS : %d", shotgun_kills), scrW/4, (scrH/2)+128, 24, RED);
     DrawText(TextFormat("WORMHOLE KILLS : %d", bomb_kills), scrW/4, (scrH/2)+160, 24, RED);
     DrawText(TextFormat("DEATHS NOT DIED : %d", deaths_avoided), scrW/4, (scrH/2)+192, 24, RED);
+    DrawText(TextFormat("TIME ALIVE : %d SECONDS", time_alive/60), scrW/4, (scrH/2)+ 96, 24, RED);
     DrawText(TextFormat("SUCKS : FUCKED"), scrW/4, (scrH/2)+224, 24, RED);
     DrawText("'R' TO LIVE AND KILL AGAIN", scrW/4, (scrH/2)+266, 32, RED);
 }

@@ -200,7 +200,6 @@ int main(void) {
     asteroids = (Vector4*)malloc(sizeof(Vector4)*MAX_ASTEROIDS);
     bullets = (Vector4*)malloc(sizeof(Vector4)*MAX_BULLETS);
     dead_ship = (Vector4*)malloc(sizeof(Vector4) * SHIP_DEBRIS);
-    paused = true;
 
     srand(time(NULL));
     InitWindow(scrW, scrH, "Assteroids Raylib");
@@ -291,7 +290,7 @@ int main(void) {
             draw_shotgun();
         if(shield_pickup.w > 0)
             draw_shield_pickup();
-        
+        DrawText("H/?", (scrW-MeasureText("H/?", 32)-32), scrH-34, 32, WHITE); 
         DrawText(TextFormat("%d", score), 4, scrH-34, 32, WHITE);
         DrawFPS(0, 0);
         EndDrawing();
@@ -441,12 +440,13 @@ void update_bomb() {
 }
 
 void show_instructions() {
-    DrawText("I/UP : START", (scrW/2)-(MeasureText("I/UP : START", 32)/2), (scrH/2)-256, 32, RED);
-    DrawText("J/LEFT : TURN PORT", (scrW/2)-(MeasureText("J/LEFT : TURN PORT", 32)/2), (scrH/2)-206, 32, RED);
-    DrawText("L/RIGHT : TURN STARBOARD", (scrW/2)-(MeasureText("L/RIGHT : TURN STARBOARD", 32)/2), (scrH/2)-156, 32, RED);
-    DrawText("S : SHOOT", (scrW/2)-(MeasureText("S : SHOOT", 32)/2), (scrH/2)-106, 32, RED);
-    DrawText("R : RESPAWN", (scrW/2)-(MeasureText("R : RESPAWN", 32)/2), (scrH/2)-56, 32, RED);
-    DrawText("A : WORMHOLE", (scrW/2)-(MeasureText("A : WORMHOLE", 32)/2), (scrH/2)-6, 32, RED);
-    DrawText("H : UN/PAUSE", (scrW/2)-(MeasureText("H : UN/PAUSE", 32)/2), (scrH/2)+50, 32, RED);
+    DrawText("I/UP : START", scrW/4, (scrH/2)-256, 32, RED);
+    DrawText("J/LEFT : TURN PORT", scrW/4, (scrH/2)-206, 32, RED);
+    DrawText("L/RIGHT : TURN STARBOARD", scrW/4, (scrH/2)-156, 32, RED);
+    DrawText("S : SHOOT", scrW/4, (scrH/2)-106, 32, RED);
+    DrawText("R : RESPAWN", scrW/4, (scrH/2)-56, 32, RED);
+    DrawText("A : WORMHOLE", scrW/4, (scrH/2)-6, 32, RED);
+    DrawText("H : UN/PAUSE", scrW/4, (scrH/2)+50, 32, RED);
     
+    DrawText("Thanks raysan for Raylib", scrW/4, (scrH)-34, 16, WHITE);
 }

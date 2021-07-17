@@ -185,7 +185,6 @@ void update_astrs() {
             bomb_proj.z = -1; //stop moving the bomb and explode
             bomb_proj.w +=16;
             explode_asteroid(astr);
-            score++;
             bomb_kills++;
         }
 

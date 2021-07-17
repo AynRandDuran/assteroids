@@ -123,7 +123,7 @@ void update_bullets(){
                     bullets[i].w = 0;
                     score++;
                     explode_asteroid(&asteroids[a]);
-                    if((score%1 == 0) && score > 0 && bomb_proj.w == -1) {
+                    if((score%15 == 0) && score > 0 && bomb_proj.w == -1) {
                         active_powerups |= BOMB;
                     }
                     if(active_powerups & SHOTGUN) {
@@ -211,7 +211,7 @@ int main(void) {
     dead_ship = (Vector4*)malloc(sizeof(Vector4) * SHIP_DEBRIS);
 
     srand(time(NULL));
-    InitWindow(scrW, scrH, "Assteroids Raylib");
+    InitWindow(scrW, scrH, "Randy's Rowdy Rocket Roundup");
     SetTargetFPS(50);
     init_ship();
     spin_ship(0);
@@ -301,7 +301,7 @@ int main(void) {
             draw_shotgun();
         if(shield_pickup.w > 0)
             draw_shield_pickup();
-        DrawText("H/?", (scrW-MeasureText("H/?", 32)-32), scrH-34, 32, WHITE); 
+        DrawText("[H]elp", (scrW-MeasureText("[H]elp", 32)-32), scrH-34, 32, WHITE); 
         DrawText(TextFormat("%d", score), 4, scrH-34, 32, WHITE);
         DrawFPS(0, 0);
         EndDrawing();
@@ -470,10 +470,10 @@ void show_instructions() {
 
 void show_death_stats() {
     DrawText(TextFormat("KILLS : %d", score), scrW/4, (scrH/2)+64, 24, RED);
-    DrawText(TextFormat("SHOTGUN KILLS : %d", shotgun_kills), scrW/4, (scrH/2)+128, 24, RED);
-    DrawText(TextFormat("WORMHOLE KILLS : %d", bomb_kills), scrW/4, (scrH/2)+160, 24, RED);
-    DrawText(TextFormat("DEATHS NOT DIED : %d", deaths_avoided), scrW/4, (scrH/2)+192, 24, RED);
-    DrawText(TextFormat("TIME ALIVE : %d SECONDS", time_alive/60), scrW/4, (scrH/2)+ 96, 24, RED);
+    DrawText(TextFormat("SHOTGUN KILLS : %d", shotgun_kills), scrW/4, (scrH/2)+96, 24, RED);
+    DrawText(TextFormat("WORMHOLE KILLS : %d", bomb_kills), scrW/4, (scrH/2)+128, 24, RED);
+    DrawText(TextFormat("DEATHS NOT DIED : %d", deaths_avoided), scrW/4, (scrH/2)+160, 24, RED);
+    DrawText(TextFormat("TIME ALIVE : %d SECONDS", time_alive/60), scrW/4, (scrH/2)+ 192, 24, RED);
     DrawText(TextFormat("SUCKS : FUCKED"), scrW/4, (scrH/2)+224, 24, RED);
-    DrawText("'R' TO LIVE AND KILL AGAIN", scrW/4, (scrH/2)+266, 32, RED);
+    DrawText("[R] TO LIVE AND KILL AGAIN", (scrW/2)-MeasureText("[R] TO LIVE AND KILL AGAIN", 32)/2, (scrH/2)+266, 32, RED);
 }

@@ -1,5 +1,6 @@
 #include <cstring>
 #include <math.h>
+#include <unistd.h>
 #include "assteroids.h"
 #include "powerups.hpp"
 #include "vectormath.hpp"
@@ -189,7 +190,7 @@ void update_astrs() {
         }
 
         if(ship_collision(astr) && ship_alive){
-            if((active_powerups & GOD)) {
+            if((active_powerups & GOD) || debug_nodie) {
                 deaths_avoided++;
                 continue;
             }
@@ -199,7 +200,31 @@ void update_astrs() {
 
 }
 
-int main(void) {
+int main(int argc, char** argv) {
+    int opts;
+
+    while((opts = getopt(argc, argv, "fsgb")) != -1) {
+        switch(opts) {
+            case 'f':
+                printf("turned on fps counter\n");
+                enable_fps = true;
+                break;
+            case 's':
+                debug_nodie = true;
+                break;
+            case 'g':
+                debug_shotgun = true;
+                break;
+            case 'b':
+                debug_bomb = true;
+                break;
+            case '?':
+            default:
+                break;
+        }
+
+    }
+
     InitAudioDevice();
     if(IsAudioDeviceReady()) {
         sfx_shoot = LoadSound(SFX_SHOOT_FILE);
@@ -246,7 +271,7 @@ int main(void) {
             spin_ship(0);
             StopSound(sfx_music);
         }
-        if(IsKeyPressed('A') && (active_powerups & BOMB)) {
+        if(IsKeyPressed('A') && ((active_powerups & BOMB) || debug_bomb)) {
             active_powerups ^= BOMB;
             launch_bomb();
         }
@@ -281,6 +306,8 @@ int main(void) {
             }
             if(active_powerups & BOMB && bomb_proj.w == -1) 
                 DrawCircleSectorLines(flatten(translate(nose, center)), 4.0f, 0, 360, 360, RED);
+            if(debug_shotgun)
+                enable_shotgun();
         } else if(!(active_powerups & GOD)) {
             DrawText("YOU DIED", (scrW/2)-(MeasureText("YOU DIED", 64)/2), (scrH/2)-64, 64, RED);
             DrawText("FUCK YOU", (scrW/2)-(MeasureText("FUCK YOU", 16)/2), (scrH/2)-8, 16, RED);
@@ -302,7 +329,8 @@ int main(void) {
             draw_shield_pickup();
         DrawText("[H]elp", (scrW-MeasureText("[H]elp", 32)-32), scrH-34, 32, WHITE); 
         DrawText(TextFormat("%d", score), 4, scrH-34, 32, WHITE);
-        DrawFPS(0, 0);
+        if(enable_fps)
+            DrawFPS(0, 0);
         EndDrawing();
         if(throttle && !IsSoundPlaying(sfx_music)) {
             PlaySound(sfx_music);
@@ -450,7 +478,6 @@ void update_bomb() {
         bomb_proj.w = -1;
     }
     if (!onscreen(flatten(bomb_proj))) {
-        printf("bomb off\n");
         bomb_proj.w = -1;
     }
 }

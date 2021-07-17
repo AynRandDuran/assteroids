@@ -1,10 +1,8 @@
 #ifndef __ass
 #define __ass
-
 #include <raylib.h>
 #include <cstdio>
 #include <ctime>
-
 #define SFX_SHOOT_FILE "./shoot.wav"
 #define SFX_BGM_FILE "./music.wav"
 
@@ -74,5 +72,10 @@ int shotgun_kills  = 0;
 int deaths_avoided = 0;
 int time_alive     = 0;
 
+//getopts
+bool enable_fps = false; //fps counter off by default
+bool debug_nodie = false; //Perma-shield
+bool debug_shotgun = false; //Perma-shotgun
+bool debug_bomb = false; //Perma-bomb
 #endif //__ass
 

@@ -1,8 +1,10 @@
 LIBS = -lraylib
-WINLIBS = -lraylib -lgdi32 -lwinmm
+WINLIBS = -lgdi32 -lwinmm
 
+# build in linux for linux
 game: game.cpp
-	$(CXX) -static game.cpp $(LIBS) -o assteroids
+	$(CXX) game.cpp $(LIBS) -o assteroids
 
+# build in windows for windows (raylib distros with mingw)
 win_game: game.cpp
-	$(CXX) -static game.cpp $(WINLIBS) -o assteroids.exe
+	$(CXX) game.cpp $(LIBS) $(WINLIBS) -o assteroids.exe

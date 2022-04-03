@@ -20,7 +20,7 @@ Vector4 translate(Vector4 v1, Vector4 v2) {
 
 bool onscreen(Vector2 v) {
     // Ensure v is still onscreen
-    return CheckCollisionPointRec(v, screenspace); 
+    return CheckCollisionPointRec(v, screenspace);
 }
 
 void init_ship(){
@@ -31,16 +31,16 @@ void init_ship(){
     port.z = 55;
     starboard.z = 125;
     active_powerups = 0;
-    
+
     nose.x = 0; nose.y = -15;
     port.x = -10; port.y = 15;
     starboard.x = 10; starboard.y = 15;
     center.x = scrW/2; center.y = scrH/2;
     ship_bearing = 0;
-    
+
     memset(bullets, 0, sizeof(Vector4) * MAX_BULLETS);
     memset(asteroids, 0, sizeof(Vector4) * MAX_ASTEROIDS);
-    memset(dead_ship, 0, sizeof(Vector4) * SHIP_DEBRIS);    
+    memset(dead_ship, 0, sizeof(Vector4) * SHIP_DEBRIS);
     init_shotgun();
     memset(&shotgun_box, 0, sizeof(Vector4));
     memset(dead_astr, 0, sizeof(Vector4) * SHIP_DEBRIS * MAX_ASTEROIDS);
@@ -62,7 +62,7 @@ void die(){
         dead_ship[i].w = 6;
     }
     disable_shotgun();
-    
+
 }
 
 void spin_ship(int az_delta){
@@ -72,7 +72,7 @@ void spin_ship(int az_delta){
 
     port.x = cos(port.z * (PI/180)) * 15;
     port.y = sin(port.z * (PI/180)) * 15;
-    
+
     starboard.x = cos(starboard.z * (PI/180)) * 15;
     starboard.y = sin(starboard.z * (PI/180)) * 15;
 
@@ -80,7 +80,7 @@ void spin_ship(int az_delta){
 
 void update_v4(Vector4* origin, Vector4* v_body, int speed){
     Vector2 heading = v2_normal(flatten(*origin));
-    v_body->x += heading.x * (speed*throttle); 
+    v_body->x += heading.x * (speed*throttle);
     v_body->y += heading.y * (speed*throttle);
 }
 
@@ -94,7 +94,7 @@ void shoot(){
                 bullets[i].x = center.x;
                 bullets[i].y = center.y;
                 bullets[i].z = nose.z + bullet_offsets[s];
-                bullets[i].w = 1; 
+                bullets[i].w = 1;
                 PlaySound(sfx_shoot);
                 break;
             }
@@ -112,7 +112,7 @@ void update_bullets(){
     for(int i = 0; i < MAX_BULLETS; i++){
         if(!onscreen(flatten(bullets[i])))
             bullets[i].w = 0;
-        
+
         if(bullets[i].w == 1) {
             b = &bullets[i];
             b->x += cos(b->z * (PI/180)) * 15;
@@ -132,7 +132,7 @@ void update_bullets(){
                     }
                     break;
                 }
-            } 
+            }
         }
     }
 }
@@ -143,10 +143,10 @@ void spawn_astr() {
         // find available asteroid
         // no size means you're fuckin dead, gyro
         if(asteroids[i].w == 0) {
-            asteroids[i].z = heading; 
-            asteroids[i].w = rand() % 34 + 30; 
-            asteroids[i].x = (heading > 90 && heading < 270) ? scrW : 0; 
-            asteroids[i].y = (heading > 180 && heading < 360) ? scrH : 0; 
+            asteroids[i].z = heading;
+            asteroids[i].w = rand() % 34 + 30;
+            asteroids[i].x = (heading > 90 && heading < 270) ? scrW : 0;
+            asteroids[i].y = (heading > 180 && heading < 360) ? scrH : 0;
             break;
         }
     }
@@ -254,10 +254,10 @@ int main(int argc, char** argv) {
         }
 
         if((IsKeyDown('J') || IsKeyDown(KEY_LEFT)) && ship_alive) {
-            spin_ship(-4);
+            spin_ship(-6);
         }
         if((IsKeyDown('L') || IsKeyDown(KEY_RIGHT)) && ship_alive) {
-            spin_ship(4);
+            spin_ship(6);
         }
         if((IsKeyPressed('I') || IsKeyPressed(KEY_UP)) && ship_alive) {
             throttle = true;
@@ -281,7 +281,7 @@ int main(int argc, char** argv) {
 
         if(ship_alive) {
             time_alive++;
-            update_v4(&nose, &center, 3);
+            update_v4(&nose, &center, 4);
             DrawTriangleLines(
                 flatten(translate(nose, center)),
                 flatten(translate(port, center)),
@@ -304,7 +304,7 @@ int main(int argc, char** argv) {
                 DrawText("KILL TO LIVE", (scrW/2)-(MeasureText("KILL TO LIVE", 64)/2), (scrH/2)-128, 64, RED);
                 DrawText("LAUNCH TO START", (scrW/2)-(MeasureText("LAUNCH TO START", 32)/2), (scrH/2)+64, 32, RED);
             }
-            if(active_powerups & BOMB && bomb_proj.w == -1) 
+            if(active_powerups & BOMB && bomb_proj.w == -1)
                 DrawCircleSectorLines(flatten(translate(nose, center)), 4.0f, 0, 360, 360, RED);
             if(debug_shotgun)
                 enable_shotgun();
@@ -327,7 +327,7 @@ int main(int argc, char** argv) {
             draw_shotgun();
         if(shield_pickup.w > 0)
             draw_shield_pickup();
-        DrawText("[H]elp", (scrW-MeasureText("[H]elp", 32)-32), scrH-34, 32, WHITE); 
+        DrawText("[H]elp", (scrW-MeasureText("[H]elp", 32)-32), scrH-34, 32, WHITE);
         DrawText(TextFormat("%d", score), 4, scrH-34, 32, WHITE);
         if(enable_fps)
             DrawFPS(0, 0);
@@ -345,7 +345,7 @@ int main(int argc, char** argv) {
     free(bullets);
     free(asteroids);
     free(dead_ship);
-    
+
     return 0;
 }
 
@@ -408,15 +408,15 @@ void update_explosions() {
         }
         offscreen_bubbles=0;
     }
-    
+
 }
 
 void init_shotgun() {
     int heading = rand() % 360;
-    shotgun_box.z = heading; 
-    shotgun_box.w = 1; 
-    shotgun_box.x = (heading > 90 && heading < 270) ? scrW : 0; 
-    shotgun_box.y = (heading > 180 && heading < 360) ? scrH : 0; 
+    shotgun_box.z = heading;
+    shotgun_box.w = 1;
+    shotgun_box.x = (heading > 90 && heading < 270) ? scrW : 0;
+    shotgun_box.y = (heading > 180 && heading < 360) ? scrH : 0;
 
     memcpy(s_top_box, master_s_top_box, sizeof(Vector2)*4); memcpy(s_bot_box, master_s_bot_box, sizeof(Vector2)*4);
     for(int i = 0; i < 4; i++) {
@@ -458,7 +458,7 @@ void draw_shotgun() {
 void launch_bomb() {
     bomb_proj.x = flatten(translate(nose, center)).x;
     bomb_proj.y = flatten(translate(nose, center)).y;
-    bomb_proj.z = nose.z; 
+    bomb_proj.z = nose.z;
     bomb_proj.w = 16;
 }
 
@@ -490,7 +490,7 @@ void show_instructions() {
     DrawText("R : RESPAWN", scrW/4, (scrH/2)-56, 32, RED);
     DrawText("A : WORMHOLE", scrW/4, (scrH/2)-6, 32, RED);
     DrawText("H : UN/PAUSE", scrW/4, (scrH/2)+50, 32, RED);
-    
+
     DrawText("Thanks raysan for Raylib", scrW/4, (scrH)-34, 16, WHITE);
 }
 
